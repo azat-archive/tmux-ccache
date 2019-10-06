@@ -29,7 +29,7 @@ function substitude_option()
     local key
     while read -r key; do
         local key_fmt="\#{ccache_${key}}"
-        local val_cmd="#($(get_script ccache.sh) -vicon=$ccache_icon -vkey=$key)"
+        local val_cmd="$ccache_format_begin#($(get_script ccache.sh) -vicon=$ccache_icon -vkey=$key)$ccache_format_end"
         opt="${opt/$key_fmt/$val_cmd}"
     done < <(ccache_stats)
 
@@ -41,6 +41,8 @@ function ccache_stats() { $(get_script ccache.sh); }
 function main()
 {
     ccache_icon="$(tmux_get_option "@ccache_icon" "Ͼ")"
+    ccache_format_begin="$(tmux_get_option "@ccache_format_begin" "#[fg=white]")"
+    ccache_format_end="$(tmux_get_option   "@ccache_format_end"   "#[fg=default]")"
 
     tmux_update_option status-left
     tmux_update_option status-right

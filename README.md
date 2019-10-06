@@ -19,7 +19,9 @@ If format strings are added to `status-right`, they should now be visible.
 
 ### Supported Options
 
-- `@ccache_icon`
+- `@ccache_icon` (default: `Ͼ`)
+- `@ccache_format_begin` (default: `#[fg=white]`)
+- `@ccache_format_end` (default: `#[fg=default]`)
 
 ### Supported formatters
 
