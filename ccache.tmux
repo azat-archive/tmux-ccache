@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-function run_script() { "$(dirname "${BASH_SOURCE[0]}")/scripts/$*"; }
+function get_script() { echo "$(dirname "${BASH_SOURCE[0]}")/scripts/$*"; }
 
 function tmux_get_option()
 {
@@ -26,34 +26,17 @@ function substitude_option()
 {
     local opt="$1" && shift
 
-    readarray stats < <(ccache_stats)
-
-    local line
-
-    # make assoc array
-    declare -A stats_assoc
-    for line in "${stats[@]}"; do
-        local kv=( $line )
-        local key="${kv[0]}"
-        local val="${kv[1]}"
-        stats_assoc["$key"]="$val"
-    done
-
-    # status(ccache_status) shortcut
-    stats_assoc[status]="$ccache_icon ${stats_assoc[cache_hit_rate]}"
-
-    # subst
     local key
-    for key in "${!stats_assoc[@]}"; do
-        local val="${stats_assoc[$key]}"
-        local key="\#{ccache_${key}}"
-        opt="${opt/$key/$val}"
-    done
+    while read -r key; do
+        local key_fmt="\#{ccache_${key}}"
+        local val_cmd="#($(get_script ccache.sh) -vicon=$ccache_icon -vkey=$key)"
+        opt="${opt/$key_fmt/$val_cmd}"
+    done < <(ccache_stats)
 
     echo "$opt"
 }
 
-function ccache_stats() { ccache --print-stats | run_script ccache.awk; }
+function ccache_stats() { $(get_script ccache.sh); }
 
 function main()
 {
